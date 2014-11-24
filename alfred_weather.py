@@ -490,6 +490,15 @@ class WeatherWorkflow(Workflow):
         weather['forecast'] = sorted(forecast, key=lambda d: d['date'])
         return weather
 
+    def _get_copyright_info(self, weather):
+        arg = SERVICES[self.config['service']]['url']
+        time = weather['info']['time'].strftime(self.config['time_format'])
+        return Item(LINE, u'Fetched from {} at {}'.format(
+                                 SERVICES[self.config['service']]['name'], time),
+                                 icon="blank.png", arg=arg, valid=True)
+
+
+
     def _show_alert_information(self, weather):
         items = []
         if 'alerts' in weather:
@@ -808,16 +817,11 @@ class WeatherWorkflow(Workflow):
             items.append(Item(title, subtitle, icon=icon, arg=clean_str(arg),
                                      valid=True))
 
-        arg = SERVICES[self.config['service']]['url']
-        time = weather['info']['time'].strftime(self.config['time_format'])
-
-        items.append(Item(LINE, u'Fetched from {} at {}'.format(
-                                 SERVICES[self.config['service']]['name'], time),
-                                 icon='', arg=arg, valid=True))
+        items.append(self._get_copyright_info(weather))
         return items
 
     # feelslike --------------------------------------------------------
-
+   
     def tell_feelslike(self, query):
         feelslike = self.config.get('feelslike', False)
         return [Item('Toggle whether to show "feels like" temperatures',

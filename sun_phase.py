@@ -42,7 +42,7 @@ class SunPhaseWorkflow(WeatherWorkflow):
                 continue
 
             items.append(self._create_item(day_desc, content))
-        
+        items.append(self._get_copyright_info(weather))
         return items
 
 
