@@ -3,9 +3,9 @@
 
 ![screenshot-weather](screenshots/screenshot_weather.png?raw=true)
 
-<p align="center">
-  <a href="https://dl.dropbox.com/s/hug7tz83dk5wsa5/jc-weather.alfredworkflow"><img src="http://i.imgur.com/E8I5TfU.png" alt="Download"></a>
-</p>
+<center>
+[![download](http://i.imgur.com/E8I5TfU.png)](bin/Weather.alfredworkflow)
+</center>
 
 This workflow lets you access weather forecasts from [forecast.io][fio] and the
 [Weather Underground][wund].  There are several setup commands, accessible as
