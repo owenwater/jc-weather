@@ -298,6 +298,22 @@ class WeatherWorkflow(Workflow):
         target_now = self._remotize_time(self._localize_time())
         return target_now.date()
 
+    def _get_weather(self, location):
+        self._validate_settings()
+
+        location = location.strip()
+
+        if len(location) > 0:
+            self._update_location(location)
+
+        if self.config['service'] == 'wund':
+            weather = self._get_wund_weather()
+        else:
+            weather = self._get_fio_weather()
+
+        return weather
+
+
     def _get_wund_weather(self):
         LOG.debug('getting weather from Weather Underground')
         location = '{},{}'.format(self.config['location']['latitude'],
@@ -383,7 +399,7 @@ class WeatherWorkflow(Workflow):
                 'conditions': day['conditions'],
                 'precip': day['pop'],
                 'icon': day['icon'],
-                'date': fdate
+                'date': fdate,
             }
 
             if self.config['units'] == 'us':
@@ -457,6 +473,11 @@ class WeatherWorkflow(Workflow):
                 'icon': FIO_TO_WUND.get(day['icon'], day['icon']),
                 'temp_hi': int(round(day['temperatureMax'])),
                 'temp_lo': int(round(day['temperatureMin'])),
+                'sunrise': self._localize_time(datetime.fromtimestamp(
+                int(day['sunriseTime']))),
+                'sunset': self._localize_time(datetime.fromtimestamp(
+                int(today['sunsetTime']))),
+
             }
             if 'precipProbability' in day:
                 info['precip'] = 100 * day['precipProbability']
@@ -708,18 +729,10 @@ class WeatherWorkflow(Workflow):
 
     def tell_weather(self, location):
         '''Tell the current conditions and forecast for a location'''
-        self._validate_settings()
 
         location = location.strip()
-
-        if len(location) > 0:
-            self._update_location(location)
-
-        if self.config['service'] == 'wund':
-            weather = self._get_wund_weather()
-        else:
-            weather = self._get_fio_weather()
-
+        weather = self._get_weather(location)
+   
         items = []
 
         # alerts

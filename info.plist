@@ -53,6 +53,23 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>plusspaces</key>
+				<false/>
+				<key>url</key>
+				<string>{query}</string>
+				<key>utf8</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openurl</string>
+			<key>uid</key>
+			<string>D83AF686-44AA-46E2-B388-7C9C53F30930</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>argumenttype</key>
 				<integer>1</integer>
 				<key>escaping</key>
@@ -77,23 +94,6 @@ WeatherWorkflow().tell('weather', '''{query}''')</string>
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
 			<string>4E09B635-A23C-4B94-99CB-6731C9B0A6E6</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>plusspaces</key>
-				<false/>
-				<key>url</key>
-				<string>{query}</string>
-				<key>utf8</key>
-				<true/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.openurl</string>
-			<key>uid</key>
-			<string>D83AF686-44AA-46E2-B388-7C9C53F30930</string>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
@@ -170,6 +170,36 @@ WeatherWorkflow().tell('commands', '''{query}''')</string>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>keyword</key>
+				<string>sun</string>
+				<key>runningsubtext</key>
+				<string>Loading...</string>
+				<key>script</key>
+				<string>from sun_phase import SunPhaseWorkflow
+SunPhaseWorkflow().tell('sun', '''{query}''')</string>
+				<key>subtext</key>
+				<string>Show sunrise and sunset time (location optional)</string>
+				<key>title</key>
+				<string>sun</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>A7ABDFC6-BA42-4012-8D5F-8E7EB4F8A060</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string>Version: 20130524.0
@@ -191,6 +221,11 @@ This workflow is based on David Ferguson's Weather workflow. It includes icon se
 		<dict>
 			<key>ypos</key>
 			<real>30</real>
+		</dict>
+		<key>A7ABDFC6-BA42-4012-8D5F-8E7EB4F8A060</key>
+		<dict>
+			<key>ypos</key>
+			<real>270</real>
 		</dict>
 		<key>D83AF686-44AA-46E2-B388-7C9C53F30930</key>
 		<dict>
