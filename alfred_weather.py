@@ -413,6 +413,9 @@ class WeatherWorkflow(Workflow):
 
         forecast = [get_day_info(d) for d in days]
         weather['forecast'] = sorted(forecast, key=lambda d: d['date'])
+        
+        weather['forecast'][0]['sunrise'] = self._remotize_time(weather['info']['sunrise'])
+        weather['forecast'][0]['sunset'] = self._remotize_time(weather['info']['sunset'])
         return weather
 
     def _get_fio_weather(self):
@@ -473,9 +476,9 @@ class WeatherWorkflow(Workflow):
                 'icon': FIO_TO_WUND.get(day['icon'], day['icon']),
                 'temp_hi': int(round(day['temperatureMax'])),
                 'temp_lo': int(round(day['temperatureMin'])),
-                'sunrise': self._localize_time(datetime.fromtimestamp(
+                'sunrise': self._remotize_time(datetime.fromtimestamp(
                 int(day['sunriseTime']))),
-                'sunset': self._localize_time(datetime.fromtimestamp(
+                'sunset': self._remotize_time(datetime.fromtimestamp(
                 int(today['sunsetTime']))),
 
             }
@@ -487,6 +490,29 @@ class WeatherWorkflow(Workflow):
         forecast = [get_day_info(d) for d in days]
         weather['forecast'] = sorted(forecast, key=lambda d: d['date'])
         return weather
+
+    def _show_alert_information(self, weather):
+        items = []
+        if 'alerts' in weather:
+            for alert in weather['alerts']:
+                item = Item(alert['description'], icon='error.png')
+                if alert['expires']:
+                    item.subtitle = 'Expires at {}'.format(alert['expires'].strftime(
+                        self.config['time_format']))
+                if 'uri' in alert:
+                    item.arg = clean_str(alert['uri'])
+                    item.valid = True
+                items.append(item)
+        return items
+
+    def _get_day_desc(self, date, today, offset, get_today_words):
+        if date == today:
+            day_desc = get_today_words()
+        elif date.day - today.day == 1:
+            day_desc = 'Tomorrow'
+        else:
+            day_desc = (date + offset).strftime('%A')
+        return day_desc
 
     # commands ---------------------------------------------------------
 
@@ -733,19 +759,7 @@ class WeatherWorkflow(Workflow):
         location = location.strip()
         weather = self._get_weather(location)
    
-        items = []
-
-        # alerts
-        if 'alerts' in weather:
-            for alert in weather['alerts']:
-                item = Item(alert['description'], icon='error.png')
-                if alert['expires']:
-                    item.subtitle = 'Expires at {}'.format(alert['expires'].strftime(
-                        self.config['time_format']))
-                if 'uri' in alert:
-                    item.arg = clean_str(alert['uri'])
-                    item.valid = True
-                items.append(item)
+        items = self._show_alert_information(weather)
 
         # conditions
         tu = 'F' if self.config['units'] == 'us' else 'C'
@@ -778,13 +792,8 @@ class WeatherWorkflow(Workflow):
         sunset = weather['info']['sunset']
 
         for day in days:
-            if day['date'] == today:
-                day_desc = self._get_today_word(sunrise, sunset).capitalize()
-            elif day['date'].day - today.day == 1:
-                day_desc = 'Tomorrow'
-            else:
-                day_desc = (day['date'] + offset).strftime('%A')
-
+            day_desc = self._get_day_desc(day['date'], today, offset, 
+                self._get_today_word(sunrise, sunset).capitalize)
             title = u'{}: {}'.format(day_desc, day['conditions'].capitalize())
             subtitle = u'High: {}°{},  Low: {}°{}'.format(
                 day['temp_hi'], tu, day['temp_lo'], tu)

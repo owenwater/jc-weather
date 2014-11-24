@@ -30,9 +30,7 @@ class SunPhaseWorkflow(WeatherWorkflow):
         location = location.strip()
         weather = self._get_weather(location)
 
-        items = []
-
-        #TODO: alert
+        items = self._show_alert_information(weather)
 
         today = self._get_current_date()
         today_sunrise = weather['info']['sunrise']
@@ -45,33 +43,20 @@ class SunPhaseWorkflow(WeatherWorkflow):
             days = days[:self.config['days']]
 
         for day in days:
-            if day['date'] == today:
-                day_desc =  TODAY
-            elif day['date'].day - today.day == 1:
-                day_desc = TOMORROW
-            else:
-                day_desc = (day['date'] + offset).strftime('%A')
-            #END TODO
+            day_desc = self._get_day_desc(day['date'], today, offset, lambda : "Today")
 
             content = self._sun_phase_description(day.get('sunrise'), day.get('sunset'))
 
             if content == "":
                 continue
 
-            
-
             items.append(self._create_item(day_desc, content))
         
-        if len(items) == 0:
-            #Weather underground only return sunrise/sunset time of current day
-            content = self._sun_phase_description(today_sunrise, today_sunset)
-            if content != "":
-                items.append(self._create_item(TODAY, content))
-
         return items
 
 
 
 if __name__=="__main__":
+    import sys
     ap = SunPhaseWorkflow()
-    ap.tell('sun')
+    ap.tell('sun', sys.argv[1] if len(sys.argv) > 1 else '')
