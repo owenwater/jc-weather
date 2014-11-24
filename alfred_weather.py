@@ -357,7 +357,7 @@ class WeatherWorkflow(Workflow):
         if 'moon_phase' in data:
             def to_time(time_dict):
                 hour = int(time_dict['hour'])
-                minute = int(time_dict['hour'])
+                minute = int(time_dict['minute'])
                 dt = datetime.now().replace(hour=hour, minute=minute)
                 return self._localize_time(dt)
 
