@@ -281,9 +281,8 @@ class WeatherWorkflow(Workflow):
             icon = '{}.png'.format('error')
         return icon
 
-    def _get_today_word(self, sunrise, sunset):
+    def _get_today_word(self, sunset):
         # the 'today' word is 'tonight' if it's less than 2 hours before sunset
-
         current_time = self._localize_time()
         try:
             if (sunset - current_time).seconds < 7200:
@@ -505,14 +504,23 @@ class WeatherWorkflow(Workflow):
                 items.append(item)
         return items
 
-    def _get_day_desc(self, date, today, offset, get_today_words):
+    def _get_day_desc(self, date, today_word = "Today"):
+        today = self._get_current_date()
+        offset = date.today() - today
+
         if date == today:
-            day_desc = get_today_words()
+            day_desc = today_word
         elif date.day - today.day == 1:
             day_desc = 'Tomorrow'
         else:
             day_desc = (date + offset).strftime('%A')
         return day_desc
+
+    def _get_days(self, weather):
+        days = weather['forecast']
+        if len(days) > self.config['days']:
+            days = days[:self.config['days']]
+        return days
 
     # commands ---------------------------------------------------------
 
@@ -782,18 +790,13 @@ class WeatherWorkflow(Workflow):
                                   self.config['location']['longitude'])
 
         # forecast
-        days = weather['forecast']
-        if len(days) > self.config['days']:
-            days = days[:self.config['days']]
+        days = self._get_days(weather)
 
-        today = self._get_current_date()
-        offset = date.today() - today
-        sunrise = weather['info']['sunrise']
         sunset = weather['info']['sunset']
+        today_word = self._get_today_word(sunset).capitalize()
 
         for day in days:
-            day_desc = self._get_day_desc(day['date'], today, offset, 
-                self._get_today_word(sunrise, sunset).capitalize)
+            day_desc = self._get_day_desc(day['date'], today_word)
             title = u'{}: {}'.format(day_desc, day['conditions'].capitalize())
             subtitle = u'High: {}°{},  Low: {}°{}'.format(
                 day['temp_hi'], tu, day['temp_lo'], tu)

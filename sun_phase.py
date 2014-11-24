@@ -26,24 +26,15 @@ class SunPhaseWorkflow(WeatherWorkflow):
 
     def tell_sun(self, location):
         """Tell sunrise and sunset time for today and following few days"""
-        
         location = location.strip()
         weather = self._get_weather(location)
 
         items = self._show_alert_information(weather)
 
-        today = self._get_current_date()
-        today_sunrise = weather['info']['sunrise']
-        today_sunset = weather['info']['sunset']
-        offset = date.today() - today
-        
-        #TODO: remove code duplicated with super class here
-        days = weather['forecast']
-        if len(days) > self.config['days']:
-            days = days[:self.config['days']]
+        days = self._get_days(weather)
 
         for day in days:
-            day_desc = self._get_day_desc(day['date'], today, offset, lambda : "Today")
+            day_desc = self._get_day_desc(day['date'])
 
             content = self._sun_phase_description(day.get('sunrise'), day.get('sunset'))
 
